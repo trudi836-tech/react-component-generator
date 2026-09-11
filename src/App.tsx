@@ -3,6 +3,7 @@ import { PromptInput } from './components/PromptInput';
 import { ComponentCard } from './components/ComponentCard';
 import { useComponentGenerator } from './hooks/useComponentGenerator';
 import type { Provider } from './types';
+import { loadApiKey, loadProvider, saveApiKey, saveProvider } from './utils/localStorage';
 import './App.css';
 
 const PROVIDER_CONFIG = {
@@ -11,15 +12,23 @@ const PROVIDER_CONFIG = {
 } as const;
 
 function App() {
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = useState(loadApiKey);
   const [showKey, setShowKey] = useState(false);
-  const [provider, setProvider] = useState<Provider>('google');
+  const [provider, setProvider] = useState<Provider>(loadProvider);
   const [envKeys, setEnvKeys] = useState<Record<Provider, boolean>>({
     anthropic: false,
     google: false,
   });
   const { components, isLoading, error, generate, removeComponent, clearAll } =
     useComponentGenerator();
+
+  useEffect(() => {
+    saveApiKey(apiKey);
+  }, [apiKey]);
+
+  useEffect(() => {
+    saveProvider(provider);
+  }, [provider]);
 
   useEffect(() => {
     fetch('/api/config')
